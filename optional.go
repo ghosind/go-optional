@@ -1,5 +1,9 @@
 package optional
 
+import (
+	"encoding/json"
+)
+
 // Optional is a container that may or may not contains a non-nil value.
 type Optional[T comparable] struct {
 	val *T
@@ -111,4 +115,23 @@ func (opt *Optional[T]) OrElseGet(supplier func() T) T {
 		return *opt.val
 	}
 	return supplier()
+}
+
+// MarshalJSON marshals the value and returns into valid JSON.
+func (opt *Optional[T]) MarshalJSON() ([]byte, error) {
+	if opt.IsEmpty() {
+		return []byte("null"), nil
+	}
+
+	return json.Marshal(*opt.val)
+}
+
+// UnmarshalJSON unmarshal a JSON to an Optional value.
+func (opt *Optional[T]) UnmarshalJSON(b []byte) error {
+	v := new(T)
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	opt.val = v
+	return nil
 }

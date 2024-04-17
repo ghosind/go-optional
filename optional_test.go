@@ -1,6 +1,7 @@
 package optional_test
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/ghosind/go-assert"
@@ -171,4 +172,88 @@ func TestOptionalOrElseGet(t *testing.T) {
 
 	opt = optional.New("Hello world")
 	a.EqualNow(opt.OrElseGet(action), "Hello world")
+}
+
+func TestOptionalMarshalJSON(t *testing.T) {
+	a := assert.New(t)
+
+	opt := optional.Empty[string]()
+	text, err := json.Marshal(opt)
+	a.NilNow(err)
+	a.EqualNow(string(text), `null`)
+
+	text, err = opt.MarshalJSON()
+	a.NilNow(err)
+	a.EqualNow(string(text), `null`)
+
+	opt = optional.New("Hello world")
+	text, err = json.Marshal(opt)
+	a.NilNow(err)
+	a.EqualNow(string(text), `"Hello world"`)
+
+	text, err = opt.MarshalJSON()
+	a.NilNow(err)
+	a.EqualNow(string(text), `"Hello world"`)
+
+	sv := new(struct {
+		Val *optional.Optional[string] `json:"v"`
+	})
+	text, err = json.Marshal(sv)
+	a.NilNow(err)
+	a.EqualNow(string(text), `{"v":null}`)
+
+	sv.Val = optional.New("Hello world")
+	text, err = json.Marshal(sv)
+	a.NilNow(err)
+	a.EqualNow(string(text), `{"v":"Hello world"}`)
+}
+
+func TestOptionalUnmarshalJSON(t *testing.T) {
+	a := assert.New(t)
+
+	opt := optional.Empty[string]()
+	err := json.Unmarshal([]byte(`null`), opt)
+	a.NilNow(err)
+	a.TrueNow(opt.IsEmpty())
+
+	err = json.Unmarshal([]byte(`"Hello world"`), opt)
+	a.NilNow(err)
+	a.TrueNow(opt.IsPresent())
+	a.EqualNow(opt.GetPanic(), "Hello world")
+
+	v := new(struct {
+		Val optional.Optional[string] `json:"v"`
+	})
+	err = json.Unmarshal([]byte(`{"v":null}`), v)
+	a.NilNow(err)
+	a.TrueNow(v.Val.IsEmpty())
+
+	err = json.Unmarshal([]byte(`{"v":"Hello world"}`), v)
+	a.NilNow(err)
+	a.TrueNow(v.Val.IsPresent())
+	a.EqualNow(v.Val.GetPanic(), "Hello world")
+
+	pv := new(struct {
+		Val *optional.Optional[string] `json:"v"`
+	})
+	err = json.Unmarshal([]byte(`{"v":null}`), pv)
+	a.NilNow(err)
+	a.NilNow(pv.Val)
+
+	err = json.Unmarshal([]byte(`{"v":"Hello world"}`), pv)
+	a.NilNow(err)
+	a.TrueNow(pv.Val.IsPresent())
+	a.EqualNow(pv.Val.GetPanic(), "Hello world")
+
+	err = opt.UnmarshalJSON([]byte(`null`))
+	a.NilNow(err)
+	a.TrueNow(opt.IsEmpty())
+
+	err = opt.UnmarshalJSON([]byte(`"Hello world"`))
+	a.NilNow(err)
+	a.TrueNow(opt.IsPresent())
+	a.EqualNow(opt.GetPanic(), "Hello world")
+
+	err = opt.UnmarshalJSON([]byte(`unknown`))
+	a.NotNilNow(err)
 }
