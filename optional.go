@@ -31,12 +31,23 @@ func Empty[T comparable]() *Optional[T] {
 }
 
 // Equals indicates whether some other value is equals to this Optional.
-func (opt *Optional[T]) Equals(other T) bool {
-	if opt.IsEmpty() {
+func (opt *Optional[T]) Equals(other any) bool {
+	if opt == other {
+		return true
+	}
+
+	ov, ok := other.(*Optional[T])
+	if !ok {
 		return false
 	}
 
-	return *opt.val == other
+	if opt.val == nil && ov.val == nil {
+		return true
+	} else if opt.val == nil || ov.val == nil {
+		return false
+	}
+
+	return *opt.val == *ov.val
 }
 
 // Filter returns the Optional if the value is present and matches the given predicate, otherwise
