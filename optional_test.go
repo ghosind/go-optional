@@ -42,7 +42,7 @@ func TestOptionalEquals(t *testing.T) {
 
 	opt = optional.New("Hello world")
 	a.NotTrueNow(opt.Equals("not equals"))
-	a.NotTrueNow(opt.Equals("Hello world"))
+	a.TrueNow(opt.Equals("Hello world"))
 	a.NotTrueNow(opt.Equals(optional.Empty[string]()))
 	a.NotTrueNow(opt.Equals(optional.New("not equals")))
 	a.TrueNow(opt.Equals(optional.New("Hello world")))

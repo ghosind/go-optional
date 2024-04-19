@@ -36,6 +36,14 @@ func (opt *Optional[T]) Equals(other any) bool {
 		return true
 	}
 
+	if v, ok := other.(T); ok {
+		if opt.val == nil {
+			return false
+		} else {
+			return *opt.val == v
+		}
+	}
+
 	ov, ok := other.(*Optional[T])
 	if !ok {
 		return false
