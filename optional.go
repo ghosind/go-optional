@@ -141,7 +141,7 @@ func (opt *Optional[T]) OrElseGet(supplier func() T) T {
 // String returns a string for representing the value.
 func (opt *Optional[T]) String() string {
 	if opt.IsEmpty() {
-		return "Optional[" + reflect.TypeFor[T]().String() + "].Empty"
+		return "Optional[" + reflect.TypeOf((*T)(nil)).Elem().String() + "].Empty"
 	}
 
 	rv := reflect.ValueOf(opt.val)
