@@ -2,6 +2,8 @@ package optional
 
 import (
 	"encoding/json"
+	"fmt"
+	"reflect"
 )
 
 // Optional is a container that may or may not contains a non-nil value.
@@ -134,6 +136,25 @@ func (opt *Optional[T]) OrElseGet(supplier func() T) T {
 		return *opt.val
 	}
 	return supplier()
+}
+
+// String returns a string for representing the value.
+func (opt *Optional[T]) String() string {
+	if opt.IsEmpty() {
+		return "Optional[" + reflect.TypeFor[T]().String() + "].Empty"
+	}
+
+	rv := reflect.ValueOf(opt.val)
+	sf := rv.MethodByName("String")
+	if sf.IsValid() && sf.Kind() == reflect.Func {
+		sft := sf.Type()
+		if sft.NumIn() == 0 && sft.NumOut() == 1 && sf.Type().Out(0).Kind() == reflect.String {
+			out := sf.Call(nil)
+			return out[0].String()
+		}
+	}
+
+	return fmt.Sprintf("%v", *opt.val)
 }
 
 // MarshalJSON marshals the value and returns into valid JSON.

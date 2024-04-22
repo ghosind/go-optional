@@ -8,6 +8,20 @@ import (
 	"github.com/ghosind/go-optional"
 )
 
+type TestStruct struct {
+	Val string
+}
+
+func (v *TestStruct) String() string {
+	return "TestStruct<" + v.Val + ">"
+}
+
+type TestStr string
+
+func (s TestStr) String() string {
+	return "TestStr<" + string(s) + ">"
+}
+
 func TestOptional(t *testing.T) {
 	a := assert.New(t)
 
@@ -179,6 +193,35 @@ func TestOptionalOrElseGet(t *testing.T) {
 
 	opt = optional.New("Hello world")
 	a.EqualNow(opt.OrElseGet(action), "Hello world")
+}
+
+func TestString(t *testing.T) {
+	a := assert.New(t)
+
+	intOpt := optional.Empty[int]()
+	a.EqualNow(intOpt.String(), "Optional[int].Empty")
+	intOpt = optional.New(1)
+	a.EqualNow(intOpt.String(), "1")
+
+	strOpt := optional.Empty[string]()
+	a.EqualNow(strOpt.String(), "Optional[string].Empty")
+	strOpt = optional.New("test")
+	a.EqualNow(strOpt.String(), "test")
+
+	valOpt := optional.Empty[TestStruct]()
+	a.EqualNow(valOpt.String(), "Optional[optional_test.TestStruct].Empty")
+	valOpt = optional.New(TestStruct{Val: "Hello world"})
+	a.EqualNow(valOpt.String(), "TestStruct<Hello world>")
+
+	vpOpt := optional.Empty[*TestStruct]()
+	a.EqualNow(vpOpt.String(), "Optional[*optional_test.TestStruct].Empty")
+	vpOpt = optional.New(&TestStruct{Val: "Hello world"})
+	a.EqualNow(vpOpt.String(), "TestStruct<Hello world>")
+
+	tsOpt := optional.Empty[TestStr]()
+	a.EqualNow(tsOpt.String(), "Optional[optional_test.TestStr].Empty")
+	tsOpt = optional.New(TestStr("Hello world"))
+	a.EqualNow(tsOpt.String(), "TestStr<Hello world>")
 }
 
 func TestOptionalMarshalJSON(t *testing.T) {
