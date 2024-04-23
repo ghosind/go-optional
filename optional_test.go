@@ -2,11 +2,66 @@ package optional_test
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/ghosind/go-assert"
 	"github.com/ghosind/go-optional"
 )
+
+func ExampleOptional() {
+	s := "Hello world"
+	sp := &s
+
+	opt := optional.New(sp)
+	fmt.Println(opt.IsPresent())
+	fmt.Println(opt.OrElse("Default"))
+
+	sp = nil
+	opt = optional.New(sp)
+	fmt.Println(opt.IsPresent())
+	fmt.Println(opt.OrElse("Default"))
+	// Output:
+	// true
+	// Hello world
+	// false
+	// Default
+}
+
+func ExampleOptional_MarshalJSON() {
+	type Example struct {
+		Val *optional.Optional[string] `json:"val"`
+	}
+
+	val := &Example{
+		Val: optional.Of("Hello world"),
+	}
+	out, err := json.Marshal(val)
+	fmt.Println(string(out))
+	fmt.Println(err)
+
+	val.Val = optional.Empty[string]()
+	out, err = json.Marshal(val)
+	fmt.Println(string(out))
+	fmt.Println(err)
+	// Output:
+	// {"val":"Hello world"}
+	// <nil>
+	// {"val":null}
+	// <nil>
+}
+
+func ExampleOptional_UnmarshalJSON() {
+	type Example struct {
+		Val *optional.Optional[string] `json:"val"`
+	}
+
+	val := &Example{}
+	json.Unmarshal([]byte(`{"val":"Hello world"}`), &val)
+	fmt.Println(val.Val)
+	// Output:
+	// Hello world
+}
 
 type TestStruct struct {
 	Val string
