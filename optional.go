@@ -11,18 +11,17 @@ type Optional[T comparable] struct {
 	val *T
 }
 
-// New returns an Optional instance with the specified value.
-func New[T comparable](v T) *Optional[T] {
+// New returns an Optional with the value if it's not nil, otherwise returns and empty Optional.
+func New[T comparable](v *T) *Optional[T] {
 	opt := new(Optional[T])
-	opt.val = &v
+	opt.val = v
 	return opt
 }
 
-// NewNilable returns an Optional with the value if it's not nil, otherwise returns and empty
-// Optional.
-func NewNilable[T comparable](v *T) *Optional[T] {
+// Of returns an Optional instance with the specified value.
+func Of[T comparable](v T) *Optional[T] {
 	opt := new(Optional[T])
-	opt.val = v
+	opt.val = &v
 	return opt
 }
 

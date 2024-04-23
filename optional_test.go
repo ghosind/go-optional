@@ -29,18 +29,18 @@ func TestOptional(t *testing.T) {
 	a.NotTrueNow(opt.IsPresent())
 	a.EqualNow(opt.OrElse("default"), "default")
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.TrueNow(opt.IsPresent())
 	a.EqualNow(opt.OrElse("default"), "Hello world")
 
 	var sp *string
-	opt = optional.NewNilable(sp)
+	opt = optional.New(sp)
 	a.NotTrueNow(opt.IsPresent())
 	a.EqualNow(opt.OrElse("default"), "default")
 
 	s := "some text"
 	sp = &s
-	opt = optional.NewNilable(sp)
+	opt = optional.New(sp)
 	a.TrueNow(opt.IsPresent())
 	a.EqualNow(opt.OrElse("default"), "some text")
 }
@@ -52,14 +52,14 @@ func TestOptionalEquals(t *testing.T) {
 	a.NotTrueNow(opt.Equals("not equals"))
 	a.NotTrueNow(opt.Equals(optional.Empty[int]()))
 	a.TrueNow(opt.Equals(optional.Empty[string]()))
-	a.NotTrueNow(opt.Equals(optional.New("not equals")))
+	a.NotTrueNow(opt.Equals(optional.Of("not equals")))
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.NotTrueNow(opt.Equals("not equals"))
 	a.TrueNow(opt.Equals("Hello world"))
 	a.NotTrueNow(opt.Equals(optional.Empty[string]()))
-	a.NotTrueNow(opt.Equals(optional.New("not equals")))
-	a.TrueNow(opt.Equals(optional.New("Hello world")))
+	a.NotTrueNow(opt.Equals(optional.Of("not equals")))
+	a.TrueNow(opt.Equals(optional.Of("Hello world")))
 	a.TrueNow(opt.Equals(opt))
 }
 
@@ -72,11 +72,11 @@ func TestOptionalFilter(t *testing.T) {
 	ret := opt.Filter(predicate)
 	a.DeepEqualNow(ret, empty)
 
-	opt = optional.New("test")
+	opt = optional.Of("test")
 	ret = opt.Filter(predicate)
 	a.DeepEqualNow(ret, empty)
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	ret = opt.Filter(predicate)
 	a.DeepEqualNow(ret, opt)
 }
@@ -95,7 +95,7 @@ func TestOptionalGet(t *testing.T) {
 		a.FailNow()
 	}, optional.ErrNoSuchValue)
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 
 	v, err = opt.Get()
 	a.NilNow(err)
@@ -117,7 +117,7 @@ func TestOptionalIfPresent(t *testing.T) {
 	})
 	a.NotTrueNow(run)
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	opt.IfPresent(func(v string) {
 		a.EqualNow(v, "Hello world")
 		run = true
@@ -141,7 +141,7 @@ func TestOptionalIfPresentOrElse(t *testing.T) {
 
 	actionRun = false
 	emptyRun = false
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	opt.IfPresentOrElse(func(v string) {
 		a.EqualNow(v, "Hello world")
 		actionRun = true
@@ -158,7 +158,7 @@ func TestOptionalIsPresent(t *testing.T) {
 	opt := optional.Empty[string]()
 	a.NotTrueNow(opt.IsPresent())
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.TrueNow(opt.IsPresent())
 }
 
@@ -168,7 +168,7 @@ func TestOptionalIsEmpty(t *testing.T) {
 	opt := optional.Empty[string]()
 	a.TrueNow(opt.IsEmpty())
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.NotTrueNow(opt.IsEmpty())
 }
 
@@ -178,7 +178,7 @@ func TestOptionalOrElse(t *testing.T) {
 	opt := optional.Empty[string]()
 	a.EqualNow(opt.OrElse("default"), "default")
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.EqualNow(opt.OrElse("default"), "Hello world")
 }
 
@@ -191,7 +191,7 @@ func TestOptionalOrElseGet(t *testing.T) {
 	opt := optional.Empty[string]()
 	a.EqualNow(opt.OrElseGet(action), "default")
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	a.EqualNow(opt.OrElseGet(action), "Hello world")
 }
 
@@ -200,27 +200,27 @@ func TestString(t *testing.T) {
 
 	intOpt := optional.Empty[int]()
 	a.EqualNow(intOpt.String(), "Optional[int].Empty")
-	intOpt = optional.New(1)
+	intOpt = optional.Of(1)
 	a.EqualNow(intOpt.String(), "1")
 
 	strOpt := optional.Empty[string]()
 	a.EqualNow(strOpt.String(), "Optional[string].Empty")
-	strOpt = optional.New("test")
+	strOpt = optional.Of("test")
 	a.EqualNow(strOpt.String(), "test")
 
 	valOpt := optional.Empty[TestStruct]()
 	a.EqualNow(valOpt.String(), "Optional[optional_test.TestStruct].Empty")
-	valOpt = optional.New(TestStruct{Val: "Hello world"})
+	valOpt = optional.Of(TestStruct{Val: "Hello world"})
 	a.EqualNow(valOpt.String(), "TestStruct<Hello world>")
 
 	vpOpt := optional.Empty[*TestStruct]()
 	a.EqualNow(vpOpt.String(), "Optional[*optional_test.TestStruct].Empty")
-	vpOpt = optional.New(&TestStruct{Val: "Hello world"})
+	vpOpt = optional.Of(&TestStruct{Val: "Hello world"})
 	a.EqualNow(vpOpt.String(), "TestStruct<Hello world>")
 
 	tsOpt := optional.Empty[TestStr]()
 	a.EqualNow(tsOpt.String(), "Optional[optional_test.TestStr].Empty")
-	tsOpt = optional.New(TestStr("Hello world"))
+	tsOpt = optional.Of(TestStr("Hello world"))
 	a.EqualNow(tsOpt.String(), "TestStr<Hello world>")
 }
 
@@ -236,7 +236,7 @@ func TestOptionalMarshalJSON(t *testing.T) {
 	a.NilNow(err)
 	a.EqualNow(string(text), `null`)
 
-	opt = optional.New("Hello world")
+	opt = optional.Of("Hello world")
 	text, err = json.Marshal(opt)
 	a.NilNow(err)
 	a.EqualNow(string(text), `"Hello world"`)
@@ -252,7 +252,7 @@ func TestOptionalMarshalJSON(t *testing.T) {
 	a.NilNow(err)
 	a.EqualNow(string(text), `{"v":null}`)
 
-	sv.Val = optional.New("Hello world")
+	sv.Val = optional.Of("Hello world")
 	text, err = json.Marshal(sv)
 	a.NilNow(err)
 	a.EqualNow(string(text), `{"v":"Hello world"}`)
