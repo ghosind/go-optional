@@ -120,6 +120,20 @@ func (opt *Optional[T]) IsPresent() bool {
 	return opt.val != nil
 }
 
+// Or returns the Optional instance if the value is present, otherwise returns an Optional produced
+// by the supplying function.
+func (opt *Optional[T]) Or(supplier func() *Optional[T]) *Optional[T] {
+	if supplier == nil {
+		panic(ErrNilFunction)
+	}
+
+	if opt.IsPresent() {
+		return opt
+	}
+
+	return supplier()
+}
+
 // OrElse returns the value if present, otherwise returns other.
 func (opt *Optional[T]) OrElse(other T) T {
 	if opt.IsEmpty() {

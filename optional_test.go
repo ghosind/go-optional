@@ -227,6 +227,30 @@ func TestOptionalIsEmpty(t *testing.T) {
 	a.NotTrueNow(opt.IsEmpty())
 }
 
+func TestOptionalOr(t *testing.T) {
+	a := assert.New(t)
+
+	opt := optional.New[string](nil)
+	a.PanicOfNow(func() {
+		opt.Or(nil)
+	}, optional.ErrNilFunction)
+
+	out := opt.Or(func() *optional.Optional[string] { return optional.Of("or value") })
+	a.NotNilNow(out)
+	a.TrueNow(out.IsPresent())
+	a.NotPanicNow(func() {
+		a.EqualNow(out.GetPanic(), "or value")
+	})
+
+	opt = optional.Of("Hello world")
+	out = opt.Or(func() *optional.Optional[string] { return optional.Of("or value") })
+	a.NotNilNow(out)
+	a.TrueNow(out.IsPresent())
+	a.NotPanicNow(func() {
+		a.EqualNow(out.GetPanic(), "Hello world")
+	})
+}
+
 func TestOptionalOrElse(t *testing.T) {
 	a := assert.New(t)
 
