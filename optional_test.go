@@ -100,6 +100,20 @@ func TestOptional(t *testing.T) {
 	a.EqualNow(opt.OrElse("default"), "some text")
 }
 
+func TestOptionalClone(t *testing.T) {
+	a := assert.New(t)
+
+	opt := optional.Empty[string]()
+	cpy := opt.Clone()
+	a.NotEqualNow(opt, cpy)
+	a.EqualNow(cpy.IsEmpty(), cpy.IsEmpty())
+
+	opt = optional.Of("test")
+	cpy = opt.Clone()
+	a.NotEqualNow(opt, cpy)
+	a.EqualNow(cpy.GetPanic(), opt.GetPanic())
+}
+
 func TestOptionalEquals(t *testing.T) {
 	a := assert.New(t)
 

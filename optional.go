@@ -31,6 +31,13 @@ func Empty[T comparable]() *Optional[T] {
 	return opt
 }
 
+// Clone creates and returns a copy of this optional value.
+func (opt *Optional[T]) Clone() *Optional[T] {
+	clone := new(Optional[T])
+	clone.val = opt.val
+	return clone
+}
+
 // Equals indicates whether some other value is equals to this Optional.
 func (opt *Optional[T]) Equals(other any) bool {
 	if opt == other {
